@@ -6,6 +6,11 @@
 typedef struct bouquet_t {
     int roses, tulipes, pivoines;
 } bouquet_t;
+// Exercice 3
+typedef struct commande_t {
+    int nb_bouquets;
+    bouquet_t** bouquets; // ** -> permet de définir un tableau de pointeurs
+} commande_t;
 
 // Définition des fonctions
 // Exercice 1
@@ -20,6 +25,13 @@ void initialise_bouquet(bouquet_t* bouquet, int nb_roses, int nb_tulipes, int nb
 void affiche_bouquet(bouquet_t* bouquet);
 void libere_bouquet(bouquet_t* bouquet);
 bouquet_t* combine_bouquets(bouquet_t* bouquet_1, bouquet_t* bouquet_2);
+// Exercice 3
+commande_t* nouvelle_commande(int nb_bouquets);
+void remplir_commande(commande_t* commande);
+void affiche_commande(commande_t* commande);
+void libere_commande(commande_t * commande);
+void nb_de_fleurs(commande_t* commande, int* nb_roses, int* nb_tulipes, int* nb_pivoines);
+void exemple_de_commande(void);
 
 int main() {
     // Exercice 1
@@ -36,6 +48,8 @@ int main() {
 
     // Exercice 2
 
+    // Exercice 3
+    exemple_de_commande();
 
     return 0;
 }
@@ -119,4 +133,75 @@ bouquet_t* combine_bouquets(bouquet_t* bouquet_1, bouquet_t* bouquet_2) {
     free(bouquet_1);
     free(bouquet_2);
     return bouquet;
+}
+
+// Exercice 3
+
+commande_t* nouvelle_commande(int nb_bouquets) {
+    commande_t* commande = malloc(sizeof(commande_t));
+    commande->nb_bouquets = nb_bouquets;
+    commande->bouquets = malloc(sizeof(bouquet_t*) * nb_bouquets);
+    for(int i = 0; i < nb_bouquets; i++) {
+        commande->bouquets[i] = nouveau_bouquet(); // Pour chaque bouquet on initialise !
+    }
+    return commande;
+}
+
+void remplir_commande(commande_t* commande) {
+    for(int i = 0; i < commande->nb_bouquets; i++) {
+        initialise_bouquet(commande->bouquets[i], i + 1, i + 1, i + 1);
+    }
+}
+
+void affiche_commande(commande_t* commande) {
+    printf("La commande contient %d bouquet", commande->nb_bouquets);
+    if(commande->nb_bouquets > 1) {
+        printf("s");
+    }
+    printf(".\n");
+    for(int i = 0; i < commande->nb_bouquets; i++) {
+        printf("Bouquet %d :  ", i + 1);
+        affiche_bouquet(commande->bouquets[i]);
+    }
+}
+
+void libere_commande(commande_t * commande) {
+    for(int i = 0; i < commande->nb_bouquets; i++) {
+        libere_bouquet(commande->bouquets[i]);
+    }
+    free(commande->bouquets); // Ne pas oublier de libérer l'espace mémoire des tableaux
+    free(commande);
+}
+
+void nb_de_fleurs(commande_t* commande, int* nb_roses, int* nb_tulipes, int* nb_pivoines) {
+    *nb_roses = 0;
+    *nb_tulipes = 0;
+    *nb_pivoines = 0;
+    for(int i = 0; i < commande->nb_bouquets; i++) {
+        *nb_roses += commande->bouquets[i]->roses;
+        *nb_tulipes += commande->bouquets[i]->tulipes;
+        *nb_pivoines += commande->bouquets[i]->pivoines;
+    }
+}
+
+void exemple_de_commande(void) {
+    commande_t* commande = nouvelle_commande(3);
+    remplir_commande(commande);
+    affiche_commande(commande);
+    int nb_roses, nb_tulipes, nb_pivoines;
+    nb_de_fleurs(commande, &nb_roses, &nb_tulipes, &nb_pivoines);
+    printf("La commande contient %d rose", nb_roses);
+    if(nb_roses > 1) {
+        printf("s");
+    }
+    printf(", %d tulipe", nb_tulipes);
+    if(nb_tulipes > 1) {
+        printf("s");
+    }
+    printf(" et %d pivoine", nb_pivoines);
+    if(nb_pivoines > 1) {
+        printf("s");
+    }
+    printf(".\n");
+    libere_commande(commande);
 }
